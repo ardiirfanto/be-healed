@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "296904321262",
+    "firebase_url": "https://be-healed.firebaseio.com",
+    "project_id": "be-healed",
+    "storage_bucket": "be-healed.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:296904321262:android:9a4ce38a884a5a34c9abff",
+        "android_client_info": {
+          "package_name": "com.example.be_healed"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "296904321262-9t2vcrnidhqq5bdo1n9h35u1nmroqmnt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDD2s71jhTYbYeVJd8299bDJo69h3Pl9RM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "296904321262-9t2vcrnidhqq5bdo1n9h35u1nmroqmnt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
