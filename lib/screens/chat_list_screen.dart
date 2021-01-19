@@ -79,7 +79,7 @@ class ChatListScreenState extends State<ChatListScreen> {
 
   void showNotification(message) async {
     var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
-      Platform.isAndroid ? 'com.example.be_healed' : null,
+      Platform.isAndroid ? 'com.example.be_healed' : 'com.example.be_healedtwo',
       'be HealEd',
       'It\'s okay, to be HealEd',
       playSound: true,
