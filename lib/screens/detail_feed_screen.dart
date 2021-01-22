@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:be_healed/services/background.dart';
+import 'package:be_healed/widgets/background.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

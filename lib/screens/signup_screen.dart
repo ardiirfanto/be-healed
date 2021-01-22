@@ -1,7 +1,7 @@
 import 'package:be_healed/services/auth_service.dart';
-import 'package:be_healed/services/background.dart';
+import 'package:be_healed/widgets/background.dart';
 import 'package:flutter/material.dart';
-import 'package:be_healed/services/input_signup_field.dart';
+import 'package:be_healed/widgets/input_signup_field.dart';
 import 'package:expandable_text/expandable_text.dart';
 
 class SignupScreen extends StatefulWidget {

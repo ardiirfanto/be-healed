@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:be_healed/screens/detail_feed_screen.dart';
-import 'package:be_healed/services/background.dart';
+import 'package:be_healed/widgets/background.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:be_healed/utilities/constants.dart';

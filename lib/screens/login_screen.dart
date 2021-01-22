@@ -1,6 +1,6 @@
 import 'package:be_healed/screens/signup_screen.dart';
 import 'package:be_healed/services/auth_service.dart';
-import 'package:be_healed/services/input_login_field.dart';
+import 'package:be_healed/widgets/input_login_field.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
