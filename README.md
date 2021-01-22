@@ -1,6 +1,7 @@
 # be_healed
 
 A new Flutter project.
+Mobile chat application for counseling using Flutter framework
 
 ## Getting Started
 
