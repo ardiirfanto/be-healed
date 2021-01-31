@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:be_healed/screens/change_password_screen.dart';
 import 'package:be_healed/services/auth_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   User _profileUser;
   final double appBarHeight = 50;
+  String currentUserId;
 
   @override
   void initState() {
@@ -188,6 +190,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
           PopupMenuButton(
             color: Colors.black,
             itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'Ganti Password',
+                child: TextButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ChangePasswordScreen(
+                        currentUserId: currentUserId,
+                      ),
+                    ),
+                  ),
+                  child: Text(
+                    "Ganti Password",
+                    style:
+                        TextStyle(fontSize: 17.0, color: Colors.lightBlue[100]),
+                  ),
+                ),
+              ),
               PopupMenuItem(
                 value: 'logout',
                 child: TextButton(

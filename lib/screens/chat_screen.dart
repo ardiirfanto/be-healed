@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:be_healed/screens/other_profile_screen.dart';
+import 'package:be_healed/services/firebaseController.dart';
 import 'package:be_healed/utilities/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -14,11 +15,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:be_healed/widgets/FullImageWidget.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_widgets/flutter_widgets.dart';
 
 class Chat extends StatelessWidget {
   final String receiverId;
   final String receiverAvatar;
   final String receiverName;
+  final String receiverToken;
+  final String chatId;
   final String id;
   final String currentUserId;
 
@@ -27,6 +31,8 @@ class Chat extends StatelessWidget {
     @required this.receiverId,
     @required this.receiverAvatar,
     @required this.receiverName,
+    @required this.receiverToken,
+    @required this.chatId,
     @required this.id,
     @required this.currentUserId,
   });
@@ -79,6 +85,8 @@ class Chat extends StatelessWidget {
         receiverId: receiverId,
         receiverAvatar: receiverAvatar,
         receiverName: receiverName,
+        receiverToken: receiverToken,
+        chatId: chatId,
         currentUserId: currentUserId,
         id: currentUserId,
       ),
@@ -90,6 +98,8 @@ class ChatScreen extends StatefulWidget {
   final String receiverId;
   final String receiverAvatar;
   final String receiverName;
+  final String receiverToken;
+  final String chatId;
   final String id;
   final String currentUserId;
 
@@ -98,6 +108,8 @@ class ChatScreen extends StatefulWidget {
     @required this.receiverId,
     @required this.receiverAvatar,
     @required this.receiverName,
+    @required this.receiverToken,
+    @required this.chatId,
     @required this.id,
     @required this.currentUserId,
   }) : super(key: key);
@@ -107,6 +119,8 @@ class ChatScreen extends StatefulWidget {
         receiverId: receiverId,
         receiverAvatar: receiverAvatar,
         receiverName: receiverName,
+        receiverToken: receiverToken,
+        chatId: chatId,
         currentUserId: currentUserId,
         id: currentUserId,
       );
@@ -116,6 +130,8 @@ class ChatScreenState extends State<ChatScreen> {
   final String receiverId;
   final String receiverAvatar;
   final String receiverName;
+  final String receiverToken;
+  String chatId;
   String id;
   final String currentUserId;
 
@@ -124,21 +140,25 @@ class ChatScreenState extends State<ChatScreen> {
     @required this.receiverId,
     @required this.receiverAvatar,
     @required this.receiverName,
+    @required this.receiverToken,
+    @required this.chatId,
     @required this.id,
     @required this.currentUserId,
   });
 
-  final TextEditingController textEditingController = TextEditingController();
+  final TextEditingController textEditingController =
+      new TextEditingController();
   final ScrollController listScrollController = ScrollController();
   final FocusNode focusNode = FocusNode();
   bool isLoading;
   int _limit = 20;
   final int _limitIncrement = 20;
+  int type;
 
   File imageFile;
   String imageUrl;
 
-  String chatId;
+  // String chatId;
   SharedPreferences preferences;
   // String id;
   var listMessage;
@@ -167,13 +187,21 @@ class ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     listScrollController.addListener(_scrollListener);
+    FirebaseController.instanace.getUnreadMSGCount();
 
+    setCurrentChatRoomID(widget.chatId);
     chatId = '';
 
     isLoading = false;
     imageUrl = '';
 
     readLocal();
+  }
+
+  @override
+  void dispose() {
+    setCurrentChatRoomID('none');
+    super.dispose();
   }
 
   readLocal() async {
@@ -230,15 +258,24 @@ class ChatScreenState extends State<ChatScreen> {
 
   createListMessages() {
     return Flexible(
-        child: chatId == ""
-            ? Center(
-                child: SpinKitRing(
-                  color: Colors.deepPurple,
-                  size: 25.0,
-                  lineWidth: 3.0,
-                ),
-              )
-            : StreamBuilder(
+      child: chatId == ""
+          ? Center(
+              child: SpinKitRing(
+                color: Colors.deepPurple,
+                size: 25.0,
+                lineWidth: 3.0,
+              ),
+            )
+          : VisibilityDetector(
+              key: Key("1"),
+              onVisibilityChanged: ((visibility) {
+                print('ChatRoom Visibility code is ' +
+                    '${visibility.visibleFraction}');
+                if (visibility.visibleFraction == 1.0) {
+                  FirebaseController.instanace.getUnreadMSGCount();
+                }
+              }),
+              child: StreamBuilder(
                 stream: messagesRef
                     .document(chatId)
                     .collection(chatId)
@@ -255,20 +292,32 @@ class ChatScreenState extends State<ChatScreen> {
                       ),
                     );
                   } else {
+                    for (var data in snapshot.data.documents) {
+                      if (data['idTo'] == widget.currentUserId &&
+                          data['isRead'] == false) {
+                        if (data.reference != null) {
+                          Firestore.instance.runTransaction(
+                              (Transaction myTransaction) async {
+                            await myTransaction
+                                .update(data.reference, {'isRead': true});
+                          });
+                        }
+                      }
+                    }
                     listMessage = snapshot.data.documents;
                     return ListView.builder(
                       padding: EdgeInsets.all(10.0),
-                      itemBuilder: (context, index) => createItem(
-                        index,
-                        snapshot.data.documents[index],
-                      ),
+                      itemBuilder: (context, index) =>
+                          createItem(index, snapshot.data.documents[index]),
                       itemCount: snapshot.data.documents.length,
                       reverse: true,
                       controller: listScrollController,
                     );
                   }
                 },
-              ));
+              ),
+            ),
+    );
   }
 
   bool isLastMsgLeft(int index) {
@@ -305,13 +354,17 @@ class ChatScreenState extends State<ChatScreen> {
 
                     // text msg
                     ? Container(
-                        child: Text(
-                          document['content'],
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        child: Column(
+                          children: <Widget>[
+                            Text(
+                              document['content'],
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                         padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
                         decoration: BoxDecoration(
@@ -328,26 +381,38 @@ class ChatScreenState extends State<ChatScreen> {
 
                     //image msg
                     : Container(
-                        child: FlatButton(
-                          child: Material(
-                            child: CachedNetworkImage(
-                              placeholder: (context, url) => Container(
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.deepPurple),
-                                ),
-                                width: 200.0,
-                                height: 200.0,
-                                padding: EdgeInsets.all(70.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(8.0)),
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Material(
-                                child: Image.asset(
-                                  "assets/images/img_not_available.jpeg",
+                        child: Column(
+                          children: <Widget>[
+                            FlatButton(
+                              child: Material(
+                                child: CachedNetworkImage(
+                                  placeholder: (context, url) => Container(
+                                    child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.deepPurple),
+                                    ),
+                                    width: 200.0,
+                                    height: 200.0,
+                                    padding: EdgeInsets.all(70.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(8.0)),
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) =>
+                                      Material(
+                                    child: Image.asset(
+                                      "assets/images/img_not_available.jpeg",
+                                      width: 200.0,
+                                      height: 200.0,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0)),
+                                    clipBehavior: Clip.hardEdge,
+                                  ),
+                                  imageUrl: document['content'],
                                   width: 200.0,
                                   height: 200.0,
                                   fit: BoxFit.cover,
@@ -356,52 +421,59 @@ class ChatScreenState extends State<ChatScreen> {
                                     BorderRadius.all(Radius.circular(8.0)),
                                 clipBehavior: Clip.hardEdge,
                               ),
-                              imageUrl: document['content'],
-                              width: 200.0,
-                              height: 200.0,
-                              fit: BoxFit.cover,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        FullPhoto(url: document['content']),
+                                  ),
+                                );
+                              },
                             ),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(8.0)),
-                            clipBehavior: Clip.hardEdge,
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    FullPhoto(url: document['content']),
-                              ),
-                            );
-                          },
+                          ],
+                          crossAxisAlignment: CrossAxisAlignment.end,
                         ),
-                        margin: EdgeInsets.only(right: 10.0),
+                        // margin: EdgeInsets.only(right: 10.0),
                       )
               ],
               mainAxisAlignment: MainAxisAlignment.end,
             ),
             isLastMsgRight(index)
                 ? Container(
-                    child: Text(
-                      DateFormat("hh:mm:aa").format(
-                        DateTime.fromMillisecondsSinceEpoch(
-                          int.parse(document['timeStamp']),
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          DateFormat("hh:mm:aa").format(
+                            DateTime.fromMillisecondsSinceEpoch(
+                              int.parse(document['timeStamp']),
+                            ),
+                          ),
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12.0,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
-                      ),
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12.0,
-                        fontStyle: FontStyle.italic,
-                      ),
+                        Text(
+                          document["isRead"] == true ? 'Read' : '',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12.0,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                      crossAxisAlignment: CrossAxisAlignment.end,
                     ),
                     margin:
-                        EdgeInsets.only(top: 5.0, bottom: 20.0, right: 10.0),
+                        EdgeInsets.only(top: 5.0, bottom: 10.0, right: 10.0),
                   )
-                : Container()
+                : Container(),
           ],
           crossAxisAlignment: CrossAxisAlignment.end,
         ),
-        margin: EdgeInsets.only(bottom: 10.0),
+        margin: EdgeInsets.only(bottom: 5.0),
       );
     }
 
@@ -519,9 +591,10 @@ class ChatScreenState extends State<ChatScreen> {
                             );
                           },
                         ),
-                        margin: EdgeInsets.only(left: 10.0),
+                        // margin: EdgeInsets.only(left: 10.0),
                       )
               ],
+              mainAxisAlignment: MainAxisAlignment.start,
             ),
 
             //msg time
@@ -539,13 +612,13 @@ class ChatScreenState extends State<ChatScreen> {
                         fontStyle: FontStyle.italic,
                       ),
                     ),
-                    margin: EdgeInsets.only(left: 50.0, top: 5.0, bottom: 20.0),
+                    margin: EdgeInsets.only(left: 50.0, top: 5.0, bottom: 10.0),
                   )
                 : Container()
           ],
           crossAxisAlignment: CrossAxisAlignment.start,
         ),
-        margin: EdgeInsets.only(bottom: 10.0),
+        margin: EdgeInsets.only(bottom: 5.0),
       );
     }
   }
@@ -635,6 +708,7 @@ class ChatScreenState extends State<ChatScreen> {
             "timeStamp": DateTime.now().millisecondsSinceEpoch.toString(),
             "content": contentMsg,
             "type": type,
+            "isRead": false,
           },
         );
       });

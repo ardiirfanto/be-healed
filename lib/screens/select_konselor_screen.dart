@@ -151,6 +151,8 @@ class SelectKonselorScreenState extends State<SelectKonselorScreen> {
                           receiverId: document.documentID,
                           receiverAvatar: document['profileImageUrl'],
                           receiverName: document['name'],
+                          receiverToken: document['FCMToken'],
+                          chatId: null,
                           currentUserId: currentUserId,
                           id: currentUserId,
                         )));

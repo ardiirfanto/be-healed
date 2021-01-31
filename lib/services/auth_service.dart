@@ -28,8 +28,8 @@ class AuthService {
           'address': '',
           'bio': '',
           'profileImageUrl': '',
-          'role': '',
-          'chattingWith': null,
+          'role': 'klien',
+          'chattingWith': '',
         });
         Provider.of<UserData>(context).currentUserId = signedInUser.uid;
         Navigator.pop(context);
@@ -46,13 +46,37 @@ class AuthService {
     }
   }
 
+  static void updateEmail(String _email) async {
+    var message;
+    FirebaseUser firebaseUser = await _auth.currentUser();
+    firebaseUser
+        .updateEmail(_email)
+        .then(
+          (value) => message = 'Berhasil',
+        )
+        .catchError((onError) => message = 'gagal');
+    return message;
+  }
+
+  static void updatePassword(String _password) async {
+    var message;
+    FirebaseUser firebaseUser = await _auth.currentUser();
+    firebaseUser
+        .updatePassword(_password)
+        .then(
+          (value) => message = 'Berhasil',
+        )
+        .catchError((onError) => message = 'gagal');
+    return message;
+  }
+
   static void login(String email, String password) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
     } catch (e) {
       print("Error = " + e.toString());
       Fluttertoast.showToast(
-        msg: "Email or password is wrong, try again",
+        msg: "Email or password is wrong, try again later",
         gravity: ToastGravity.CENTER,
         backgroundColor: Colors.deepPurple,
         textColor: Colors.purple[50],

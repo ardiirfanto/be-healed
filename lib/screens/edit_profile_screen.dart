@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:be_healed/services/auth_service.dart';
 import 'package:be_healed/services/storage_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -108,7 +109,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
       // Database update
       DatabaseService.updateUser(user);
-
+      AuthService.updateEmail(_email);
       widget.updateUser(user);
 
       Navigator.pop(context);
