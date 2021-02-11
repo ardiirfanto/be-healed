@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:be_healed/screens/chat_screen.dart';
 import 'package:be_healed/screens/select_konselor_screen.dart';
-import 'package:be_healed/services/firebaseController.dart';
+import 'package:be_healed/services/firebase_controller.dart';
 import 'package:be_healed/utilities/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -29,7 +29,7 @@ class ChatListScreenState extends State<ChatListScreen> {
 
   final FirebaseUser user;
 
-  final double appBarHeight = 20;
+  final double appBarHeight = 30;
 
   @override
   Widget build(BuildContext context) {
@@ -46,39 +46,46 @@ class ChatListScreenState extends State<ChatListScreen> {
         ),
       ),
       body: SlidingUpPanel(
-        minHeight: 225,
-        maxHeight: 450,
-        panelBuilder: (scrollController) => Scaffold(
-          appBar: buildAppBar(),
-          body: StreamBuilder<DocumentSnapshot>(
-              stream: usersRef.document(currentUserId).snapshots(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<DocumentSnapshot> snapshot) {
-                return Container(
-                  child: Stack(
-                    children: <Widget>[
-                      // List
-                      Container(
-                        color: Colors.white,
-                        child: checkRole(snapshot.data),
-                      ),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(25.0),
+          topRight: Radius.circular(25.0),
+        ),
+        minHeight: MediaQuery.of(context).size.height * .43,
+        maxHeight: MediaQuery.of(context).size.height * .75,
+        panelBuilder: (scrollController) => Container(
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+          child: Scaffold(
+            appBar: buildAppBar(),
+            body: StreamBuilder<DocumentSnapshot>(
+                stream: usersRef.document(currentUserId).snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<DocumentSnapshot> snapshot) {
+                  return Container(
+                    child: Stack(
+                      children: <Widget>[
+                        // List
+                        Container(
+                          color: Colors.white,
+                          child: checkRole(snapshot.data, scrollController),
+                        ),
 
-                      // Loading
-                      Positioned(
-                        child: isLoading
-                            ? const Center(
-                                child: SpinKitRing(
-                                  color: Colors.deepPurple,
-                                  size: 25.0,
-                                  lineWidth: 3.0,
-                                ),
-                              )
-                            : Container(),
-                      )
-                    ],
-                  ),
-                );
-              }),
+                        // Loading
+                        Positioned(
+                          child: isLoading
+                              ? const Center(
+                                  child: SpinKitRing(
+                                    color: Colors.deepPurple,
+                                    size: 25.0,
+                                    lineWidth: 3.0,
+                                  ),
+                                )
+                              : Container(),
+                        )
+                      ],
+                    ),
+                  );
+                }),
+          ),
         ),
         body: Container(
           color: Colors.lightBlueAccent,
@@ -94,7 +101,7 @@ class ChatListScreenState extends State<ChatListScreen> {
     );
   }
 
-  checkRole(DocumentSnapshot snapshot) {
+  checkRole(DocumentSnapshot snapshot, scrollController) {
     if (snapshot.data['role'] == 'klien') {
       return VisibilityDetector(
         key: Key("1"),
@@ -151,6 +158,7 @@ class ChatListScreenState extends State<ChatListScreen> {
                 ),
                 body: Container(
                   child: ListView.builder(
+                    controller: scrollController,
                     padding: EdgeInsets.all(10.0),
                     itemBuilder: (context, index) =>
                         buildItem(context, snapshot.data.documents[index]),
@@ -201,7 +209,7 @@ class ChatListScreenState extends State<ChatListScreen> {
 
   Widget buildItem(BuildContext context, DocumentSnapshot document) {
     if (document['role'] == 'klien' ||
-        document['role'] == 'konselor' && document['chattingWith'] == '') {
+        document['role'] == 'konselor' && document['chattingWith'] == null) {
       return Container();
     } else {
       return Container(
@@ -237,9 +245,8 @@ class ChatListScreenState extends State<ChatListScreen> {
                       ),
                       StreamBuilder<QuerySnapshot>(
                           stream: Firestore.instance
-                              .collection('messages')
-                              .document(chatId)
-                              .collection(chatId)
+                              .document('messages/{m1}/{m2}/{m3}')
+                              .collection('chatId')
                               .where('idTo', isEqualTo: document[currentUserId])
                               .snapshots(),
                           builder: (context, chatListSnapshot) {
@@ -266,9 +273,8 @@ class ChatListScreenState extends State<ChatListScreen> {
               ),
               StreamBuilder<QuerySnapshot>(
                   stream: Firestore.instance
-                      .collection('messages')
-                      .document(chatId)
-                      .collection(chatId)
+                      .document('messages/{m1}/{m2}/{m3}')
+                      .collection('chatId')
                       .where('idTo', isEqualTo: document[currentUserId])
                       .snapshots(),
                   builder: (context, chatListSnapshot) {
@@ -278,9 +284,8 @@ class ChatListScreenState extends State<ChatListScreen> {
                                 chatListSnapshot.data.documents.length > 0)
                             ? StreamBuilder<QuerySnapshot>(
                                 stream: Firestore.instance
-                                    .collection('messages')
-                                    .document(chatId)
-                                    .collection(chatId)
+                                    .document('messages/{m1}/{m2}/{m3}')
+                                    .collection('chatId')
                                     .where('idFrom', isEqualTo: document['id'])
                                     .where('isRead', isEqualTo: false)
                                     .snapshots(),
@@ -373,7 +378,7 @@ class ChatListScreenState extends State<ChatListScreen> {
 
   Widget buildItemKonselor(BuildContext context, DocumentSnapshot document) {
     if (document['role'] == 'konselor' ||
-        document['role'] == 'klien' && document['chattingWith'] == '') {
+        document['role'] == 'klien' && document['chattingWith'] == null) {
       return Container();
     } else {
       return Container(
@@ -409,8 +414,7 @@ class ChatListScreenState extends State<ChatListScreen> {
                       ),
                       StreamBuilder<QuerySnapshot>(
                           stream: Firestore.instance
-                              .collection('messages')
-                              .document('chatId')
+                              .document('messages/{m1}/{m2}/{m3}')
                               .collection('chatId')
                               .where('idTo', isEqualTo: document[currentUserId])
                               .snapshots(),
@@ -438,9 +442,8 @@ class ChatListScreenState extends State<ChatListScreen> {
               ),
               StreamBuilder<QuerySnapshot>(
                   stream: Firestore.instance
-                      .collection('users')
-                      .document(widget.currentUserId)
-                      .collection('chatlist')
+                      .document('messages/{m1}/{m2}/{m3}')
+                      .collection('chatId')
                       .where('chatWith', isEqualTo: document['id'])
                       .snapshots(),
                   builder: (context, chatListSnapshot) {
@@ -450,8 +453,7 @@ class ChatListScreenState extends State<ChatListScreen> {
                                 chatListSnapshot.data.documents.length > 0)
                             ? StreamBuilder<QuerySnapshot>(
                                 stream: Firestore.instance
-                                    .collection('messages')
-                                    .document('chatId')
+                                    .document('messages/{m1}/{m2}/{m3}')
                                     .collection('chatId')
                                     .where('idTo',
                                         isEqualTo: document[currentUserId])
@@ -546,13 +548,13 @@ class ChatListScreenState extends State<ChatListScreen> {
 
   Widget buildAppBar() => PreferredSize(
         preferredSize: Size.fromHeight(appBarHeight),
-        child: Container(
-          color: Colors.white,
-          child: Center(
-            child: Icon(
-              Icons.drag_handle_rounded,
-              size: 40,
-              color: Colors.lightBlueAccent,
+        child: Center(
+          child: Container(
+            height: 8.0,
+            width: 50.0,
+            decoration: BoxDecoration(
+              color: Colors.grey,
+              borderRadius: BorderRadius.circular(5.0),
             ),
           ),
         ),

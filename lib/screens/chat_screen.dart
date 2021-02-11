@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:be_healed/screens/other_profile_screen.dart';
-import 'package:be_healed/services/firebaseController.dart';
+import 'package:be_healed/services/firebase_controller.dart';
 import 'package:be_healed/utilities/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -13,7 +13,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:be_healed/widgets/FullImageWidget.dart';
+import 'package:be_healed/widgets/full_image_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_widgets/flutter_widgets.dart';
 

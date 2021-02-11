@@ -24,7 +24,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   User _profileUser;
-  final double appBarHeight = 50;
+  final double appBarHeight = 30;
   String currentUserId;
 
   @override
@@ -58,6 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         email: user.email,
                         profileImageUrl: updateUser.profileImageUrl,
                         bio: updateUser.bio,
+                        phoneNumber: updateUser.phoneNumber,
                       );
                       setState(() => _profileUser = updatedUser);
                     },
@@ -101,52 +102,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   _buildProfileInfo(User user) {
-    return Column(
-      children: <Widget>[
-        // Padding(
-        //   padding: EdgeInsets.all(20.0),
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.center,
-        //     children: <Widget>[
-        //       CircleAvatar(
-        //         radius: 70.0,
-        //         backgroundColor: Colors.grey,
-        //         backgroundImage: user.profileImageUrl.isEmpty
-        //             ? AssetImage('assets/images/user_placeholder.jpg')
-        //             : CachedNetworkImageProvider(user.profileImageUrl),
-        //       ),
-        //     ],
-        //   ),
-        // ),
-        Container(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
-            child: Column(
+    return Container(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              user.name,
+              style: TextStyle(
+                color: Colors.blueGrey,
+                fontSize: 30.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Divider(),
+            SizedBox(height: 10.0),
+            Container(
+              height: 50.0,
+              child: Text(
+                user.bio,
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 17.0,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            Divider(),
+            SizedBox(height: 10.0),
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  user.name,
-                  style: TextStyle(
-                    color: Colors.blueGrey,
-                    fontSize: 30.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Divider(),
-                SizedBox(height: 10.0),
-                Container(
-                  height: 50.0,
-                  child: Text(
-                    user.bio,
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      fontSize: 17.0,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                Divider(),
-                SizedBox(height: 10.0),
+              children: [
                 Text(
                   user.email,
                   style: TextStyle(
@@ -154,22 +141,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: Colors.blueGrey,
                   ),
                 ),
-                SizedBox(height: 10.0),
-                _displayButton(user),
-                SizedBox(height: 30.0),
+                Text('   ||   '),
                 Text(
-                  'be HealEd',
+                  user.phoneNumber,
                   style: TextStyle(
-                    color: Colors.lightBlueAccent,
-                    fontFamily: 'Comfortaa-SemiBold',
-                    fontSize: 40.0,
+                    fontSize: 17.0,
+                    color: Colors.blueGrey,
                   ),
                 ),
               ],
             ),
-          ),
+            SizedBox(height: 10.0),
+            _displayButton(user),
+            SizedBox(height: 30.0),
+            Text(
+              'be HealEd',
+              style: TextStyle(
+                color: Colors.lightBlueAccent,
+                fontFamily: 'Comfortaa-SemiBold',
+                fontSize: 40.0,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -224,31 +219,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
       body: SlidingUpPanel(
-        minHeight: 225,
-        maxHeight: 375,
-        panelBuilder: (scrollController) => Scaffold(
-          appBar: buildAppBar(),
-          body: Container(
-            color: Colors.white,
-            child: FutureBuilder(
-              future: usersRef.document(widget.userId).get(),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: SpinKitRing(
-                      color: Colors.deepPurple,
-                      size: 25.0,
-                      lineWidth: 3.0,
-                    ),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(25.0),
+          topRight: Radius.circular(25.0),
+        ),
+        minHeight: MediaQuery.of(context).size.height * .43,
+        maxHeight: MediaQuery.of(context).size.height * .75,
+        panelBuilder: (scrollController) => Container(
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+          child: Scaffold(
+            appBar: buildAppBar(),
+            body: Container(
+              color: Colors.white,
+              child: FutureBuilder(
+                future: usersRef.document(widget.userId).get(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(
+                      child: SpinKitRing(
+                        color: Colors.deepPurple,
+                        size: 25.0,
+                        lineWidth: 3.0,
+                      ),
+                    );
+                  }
+                  User user = User.fromDoc(snapshot.data);
+                  return ListView(
+                    controller: scrollController,
+                    children: <Widget>[
+                      _buildProfileInfo(user),
+                    ],
                   );
-                }
-                User user = User.fromDoc(snapshot.data);
-                return ListView(
-                  children: <Widget>[
-                    _buildProfileInfo(user),
-                  ],
-                );
-              },
+                },
+              ),
             ),
           ),
         ),
@@ -294,13 +297,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget buildAppBar() => PreferredSize(
         preferredSize: Size.fromHeight(appBarHeight),
-        child: Container(
-          color: Colors.white,
-          child: Center(
-            child: Icon(
-              Icons.drag_handle_rounded,
-              size: 40,
-              color: Colors.lightBlueAccent,
+        child: Center(
+          child: Container(
+            height: 8.0,
+            width: 50.0,
+            decoration: BoxDecoration(
+              color: Colors.grey,
+              borderRadius: BorderRadius.circular(5.0),
             ),
           ),
         ),

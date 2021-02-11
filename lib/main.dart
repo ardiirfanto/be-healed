@@ -1,9 +1,11 @@
 import 'package:be_healed/screens/home_screen.dart';
 import 'package:be_healed/screens/login_screen.dart';
 import 'package:be_healed/screens/signup_screen.dart';
+import 'package:be_healed/services/firebase_messaging_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'models/user_data.dart';
@@ -31,7 +33,15 @@ class BeHealEd extends StatelessWidget {
         } else {
           if (snapshot.hasData) {
             Provider.of<UserData>(context).currentUserId = snapshot.data.uid;
-            return HomeScreen();
+
+            // register FirebaseMessagingService disini karena
+            // disini sudah dipastikan bahwa user telah login
+            // dan sesegera mungkin untuk melakukan inisialisasi
+            // kebutuhan firebase messaging
+            return ChangeNotifierProvider(
+              create: (context) => FirebaseMessagingService(),
+              child: HomeScreen(),
+            );
           } else {
             return LoginScreen();
           }
@@ -49,10 +59,10 @@ class BeHealEd extends StatelessWidget {
         title: 'be HealEd',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primaryIconTheme: Theme.of(context).primaryIconTheme.copyWith(
-                color: Colors.lightBlueAccent,
-              ),
-        ),
+            primaryIconTheme: Theme.of(context).primaryIconTheme.copyWith(
+                  color: Colors.lightBlueAccent,
+                ),
+            textTheme: GoogleFonts.latoTextTheme()),
         home: _getScreenId(),
         routes: {
           LoginScreen.id: (context) => LoginScreen(),

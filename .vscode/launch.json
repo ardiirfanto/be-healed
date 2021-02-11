@@ -14,6 +14,28 @@
             "cwd": "tutorial",
             "request": "launch",
             "type": "dart"
+        },
+        {
+            "name": "Device1",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "emulator-5554"
+        },
+        {
+            "name": "Device2",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "emulator-5556"
+        },
+    ],
+    "compounds": [
+        {
+            "name": "All Android",
+            "configurations": [
+                "Device1",
+                "Device2"
+            ]
         }
     ]
+
 }

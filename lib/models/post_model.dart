@@ -25,3 +25,20 @@ class Post {
     createdAt = data['createdAt'];
   }
 }
+
+class SinglePost {
+  final String featuredImage, title, date, content, excerpt;
+
+  SinglePost(
+      {this.content, this.featuredImage, this.title, this.date, this.excerpt});
+
+  factory SinglePost.fromJson(Map<String, dynamic> json) {
+    return SinglePost(
+      content: json['content']['rendered'],
+      date: json['date'],
+      featuredImage: json['_embedded']['wp:featuredmedia'][0]['source_url'],
+      title: json['title']['rendered'],
+      excerpt: json['excerpt']['rendered'],
+    );
+  }
+}
