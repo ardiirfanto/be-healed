@@ -27,7 +27,7 @@ class NameInputField extends StatelessWidget {
             color: Colors.deepPurple,
           ),
           hintText: hintText,
-          border: InputBorder.none,
+          disabledBorder: true,
         ),
       ),
     );
@@ -60,7 +60,7 @@ class EmailInputField extends StatelessWidget {
             color: Colors.deepPurple,
           ),
           hintText: hintText,
-          border: InputBorder.none,
+          disabledBorder: true,
         ),
       ),
     );
@@ -97,7 +97,7 @@ class PhoneNumberInputField extends StatelessWidget {
             color: Colors.deepPurple,
           ),
           hintText: hintText,
-          border: InputBorder.none,
+          disabledBorder: true,
         ),
         keyboardType: TextInputType.number,
         inputFormatters: <TextInputFormatter>[
@@ -130,7 +130,7 @@ class PasswordInputField extends StatelessWidget {
             Icons.lock,
             color: Colors.deepPurple,
           ),
-          border: InputBorder.none,
+          disabledBorder: true,
         ),
       ),
     );
