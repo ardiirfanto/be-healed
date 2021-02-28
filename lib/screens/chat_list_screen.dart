@@ -140,7 +140,7 @@ class ChatListScreenState extends State<ChatListScreen> {
                       ),
                       child: Row(children: <Widget>[
                         Text(
-                          'cari Konselor...',
+                          'Mulai Konseling',
                           style: TextStyle(
                             color: Colors.green,
                             fontFamily: 'Comfortaa-SemiBold',
