@@ -187,7 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             itemBuilder: (context) => [
               PopupMenuItem(
                 value: 'Ganti Password',
-                child: TextButton(
+                child: FlatButton(
                   onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -205,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               PopupMenuItem(
                 value: 'logout',
-                child: TextButton(
+                child: FlatButton(
                   onPressed: _logout,
                   child: Text(
                     "Log out",
