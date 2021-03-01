@@ -53,9 +53,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.lightBlueAccent, Colors.purpleAccent]),
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.lightBlueAccent,
+              Colors.purpleAccent,
+            ],
+          ),
         ),
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),

@@ -65,6 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Icons.home,
               size: 30.0,
             ),
+            // ignore: deprecated_member_use
             title: Text(
               'Home',
               style: TextStyle(
@@ -77,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Icons.sms_rounded,
               size: 30.0,
             ),
+            // ignore: deprecated_member_use
             title: Text(
               'Chat',
               style: TextStyle(
@@ -89,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Icons.account_circle,
               size: 30.0,
             ),
+            // ignore: deprecated_member_use
             title: Text('Profile'),
           ),
         ],

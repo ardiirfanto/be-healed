@@ -26,7 +26,7 @@ class RoundedInputField extends StatelessWidget {
             color: Colors.deepPurple,
           ),
           hintText: hintText,
-          disabledBorder: true,
+          disabledBorder: InputBorder.none,
         ),
       ),
     );
@@ -55,7 +55,7 @@ class RoundedPasswordField extends StatelessWidget {
             Icons.lock,
             color: Colors.deepPurple,
           ),
-          disabledBorder: true,
+          disabledBorder: InputBorder.none,
         ),
       ),
     );
